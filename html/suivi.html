@@ -1,0 +1,15 @@
+verify that : len(parameters)==4
+verify that : b"signature" in parameters
+verify that : sign(b"&".join(url.split(b"&")[:-1]))==parameters["signature"]
+define : ROBOT ; parameters["robot"].decode()
+define : VOYAGE ; parameters["voyage"].decode()
+define : BOISSON ; parameters["boisson"].decode()
+<!--verify that : (command_drink(ROBOT,BOISSON) and False) or get_voyage(ROBOT)==VOYAGE-->
+<html>
+    <head>
+        <title>votre boisson est en cours de preparation</title>
+    </head>
+    <body>
+
+    </body>
+</html>

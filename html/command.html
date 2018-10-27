@@ -1,0 +1,32 @@
+verify that : len(parameters)==3
+verify that : b"signature" in parameters 
+verify that : sign(b"&".join(url.split(b"&")[:-1]))==parameters[b"signature"].decode()
+define : ROBOT ; int(parameters[b"robot"].decode())
+define : VOYAGE ; int(parameters[b"voyage"].decode())
+define : LIEN1 ; "http://"+ip_srv+"/suivi.html?robot=ROBOT&voyage=VOYAGE&boisson=1&signature="+sign(b"/suivi.html?robot=ROBOT&voyage=VOYAGE&boisson=1")
+define : LIEN2 ; "http://"+ip_srv+"/suivi.html?robot=ROBOT&voyage=VOYAGE&boisson=2&signature="+sign(b"/suivi.html?robot=ROBOT&voyage=VOYAGE&boisson=2")
+define : LIEN3 ; "http://"+ip_srv+"/suivi.html?robot=ROBOT&voyage=VOYAGE&boisson=3&signature="+sign(b"/suivi.html?robot=ROBOT&voyage=VOYAGE&boisson=3")
+define : LIEN4 ; "http://"+ip_srv+"/suivi.html?robot=ROBOT&voyage=VOYAGE&boisson=4&signature="+sign(b"/suivi.html?robot=ROBOT&voyage=VOYAGE&boisson=4")
+define : LIEN5 ; "http://"+ip_srv+"/suivi.html?robot=ROBOT&voyage=VOYAGE&boisson=5&signature="+sign(b"/suivi.html?robot=ROBOT&voyage=VOYAGE&boisson=5")
+<!--verify that : (reset_screen(ROBOT) and False) or get_voyage(ROBOT)==VOYAGE-->
+<html>
+    <head>
+        <title>commander une boisson</title>
+        <style>
+            html body{
+                background-color : #color#;
+                max-width : 1000;
+                margin : auto;
+                border-radius : 30px;
+                padding : 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <a href="LIEN1">boisson 1</a>
+        <a href="LIEN2">boisson 2</a>
+        <a href="LIEN3">boisson 3</a>
+        <a href="LIEN4">boisson 4</a>
+        <a href="LIEN5">boisson 5</a>
+    </body>
+</html>
