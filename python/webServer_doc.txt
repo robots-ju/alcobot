@@ -1,0 +1,14 @@
+verify that : condition
+	raise 403 Forbidden if False
+define : value ; expression
+	replace all the instance of value by value of expression
+
+sign function(bytes) -> str signature
+path bytes : path url jusquà ?
+parameters dict url après ?
+headers dict http headers
+url bytes full url
+ip_srv str adresse ip du serveur
+get_voyage function(int x) -> no_voyage du robot x
+reset_screen function(int x) -> None reset l'écran du robot x
+command_drink(int x,int y) -> None commande la boisson y au robot x
