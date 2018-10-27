@@ -1,15 +1,29 @@
 
 .selected {
-    background: green;
+    background: #44bd32;
 }
 
 body {
+    background-color: #222f3e;
     text-align: center;
-    padding-top: 40vh;
 }
 
-button.btn{
+.btn{
+    text-align: center;
     margin: 10px;
     font-size: 2em;
+    margin-top: 20vh;
 } 
+.boissons {
+    font-size: 150%;
+    text-align: center;
+}
 
+.btn.btn-lg {
+    margin-top: 15px;
+    text-align: center;
+}
+ .logo {
+     margin-top: 10px;
+     text-align: left;
+ }
