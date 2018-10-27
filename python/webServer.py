@@ -3,7 +3,11 @@ import socket
 import hmac
 import qrcode
 import qr_rgf
-import bluetooth
+use_bluetooth=True
+try:
+    import bluetooth
+except ImportError:
+    use_bluetooth=False
 import hashlib
 import EV3BT
 from threading import Thread
@@ -152,7 +156,7 @@ class request_recieve(Thread):
                 try:
                     if path.decode()[-1]=="/":
                         path+=b"index.html"
-                    with open("./../html"+path.decode(),"rb")as f:
+                    with open("./../WEB"+path.decode(),"rb")as f:
                         ctn=f.read()
                     while 1:
                             if ctn.startswith(b"verify that :"):
@@ -176,62 +180,63 @@ class request_recieve(Thread):
         except Exception as e:
             self.default_response(version,500,(str(e)+str(e.__traceback__.tb_lineno)).encode())
             return
-
-class QR_ev3_sender(Thread):
-    def __init__(self,ev3,no):
-        self.ev3=ev3
-        self.no=no
-        Thread.__init__(self)
-    def get_voyage(self):
-        self.ev3.send(EV3BT.encodeMessage(EV3BT.MessageType.Numeric,"command",1))
-        return EV3BT.decodeMessage(self.ev3.recv(1024),EV3BT.MessageType.Numeric)
-    def reset_screen(self):
-        self.ev3.send(EV3BT.encodeMessage(EV3BT.MessageType.Numeric,"command",2))
-    def command_drink(self,drink):
-        self.ev3.send(EV3BT.encodeMessage(EV3BT.MessageType.Numeric,"command",2+drink))
-    def get_etape(self):
-        self.ev3.send(EV3BT.encodeMessage(EV3BT.MessageType.Numeric,"command",8))
-        return EV3BT.decodeMessage(self.ev3.recv(1024),EV3BT.MessageType.Text)
-    def run(self):
-        while 1:
-            msg=self.ev3.recv(1024)
-            print("message recieved")
-            mailbox,msg,a=EV3BT.decodeMessage(msg,EV3BT.MessageType.Numeric)
-            if mailbox=="qrcode":
-                qr=qrcode.QRCode()
-                url="http://"+addr+"/command.html?robot={}&voyage={}".format(self.no,int(msg))
-                signature=sign(url)
-                url+="&signature="
-                url+=signature
-                qr.add_data(url)
-                qr.make()
-                print("qrcode generé")
-                rgf=qr_rgf.rgf_generator(qr.modules)
-                while 1:
-                    self.ev3.send(bytes([35,0,0,0,1,0x92,len(rgf)%256,(len(rgf)//256)%256,0,0])+b"../prjs/alcobot/qrcode.rgf\0")
-                    response=self.ev3.recv(1024)
-                    print("réponse recue")
-                    if response[5]==0x92 and response[6]==0:
-                        msg_send=bytes([0,0,0x81,0x93,response[7]])+rgf
-                        self.ev3.send(bytes([len(msg_send)%256,len(msg_send)//256])+msg_send)
-                        break
-                    else:
-                        print("sending intialisation failed")
-                self.ev3.send(EV3BT.encodeMessage(EV3BT.MessageType.Numeric,"qrcode_update",msg))
-            else:
-                print("mailbox isn't valide")
+if use_bluetooth:
+    class QR_ev3_sender(Thread):
+        def __init__(self,ev3,no):
+            self.ev3=ev3
+            self.no=no
+            Thread.__init__(self)
+        def get_voyage(self):
+            self.ev3.send(EV3BT.encodeMessage(EV3BT.MessageType.Numeric,"command",1))
+            return EV3BT.decodeMessage(self.ev3.recv(1024),EV3BT.MessageType.Numeric)
+        def reset_screen(self):
+            self.ev3.send(EV3BT.encodeMessage(EV3BT.MessageType.Numeric,"command",2))
+        def command_drink(self,drink):
+            self.ev3.send(EV3BT.encodeMessage(EV3BT.MessageType.Numeric,"command",2+drink))
+        def get_etape(self):
+            self.ev3.send(EV3BT.encodeMessage(EV3BT.MessageType.Numeric,"command",8))
+            return EV3BT.decodeMessage(self.ev3.recv(1024),EV3BT.MessageType.Text)
+        def run(self):
+            while 1:
+                msg=self.ev3.recv(1024)
+                print("message recieved")
+                mailbox,msg,a=EV3BT.decodeMessage(msg,EV3BT.MessageType.Numeric)
+                if mailbox=="qrcode":
+                    qr=qrcode.QRCode()
+                    url="http://"+addr+"/command.html?robot={}&voyage={}".format(self.no,int(msg))
+                    signature=sign(url)
+                    url+="&signature="
+                    url+=signature
+                    qr.add_data(url)
+                    qr.make()
+                    print("qrcode generé")
+                    rgf=qr_rgf.rgf_generator(qr.modules)
+                    while 1:
+                        self.ev3.send(bytes([35,0,0,0,1,0x92,len(rgf)%256,(len(rgf)//256)%256,0,0])+b"../prjs/alcobot/qrcode.rgf\0")
+                        response=self.ev3.recv(1024)
+                        print("réponse recue")
+                        if response[5]==0x92 and response[6]==0:
+                            msg_send=bytes([0,0,0x81,0x93,response[7]])+rgf
+                            self.ev3.send(bytes([len(msg_send)%256,len(msg_send)//256])+msg_send)
+                            break
+                        else:
+                            print("sending intialisation failed")
+                    self.ev3.send(EV3BT.encodeMessage(EV3BT.MessageType.Numeric,"qrcode_update",msg))
+                else:
+                    print("mailbox isn't valide")
 
 a=socket.socket()
 a.bind(("",80))
 a.listen(1)
 request_recieve(a).start()
-ev3_addrs=[]
-ev3_cnxs=[]
-for addr in ev3_addrs:
-    ev3_cnxs.append(bluetooth.BluetoothSocket(3))
-    ev3_cnxs[-1].connect((addr,1))
-qr_ev3_senders=[]
-for i in range(len(ev3_cnxs)):
-    qr_ev3_senders.append(QR_ev3_sender(ev3_cnxs[i],i))
-for qr_ev3_sender in qr_ev3_senders:
-    qr_ev3_sender.start()
+if use_bluetooth:
+    ev3_addrs=[]
+    ev3_cnxs=[]
+    for addr in ev3_addrs:
+        ev3_cnxs.append(bluetooth.BluetoothSocket(3))
+        ev3_cnxs[-1].connect((addr,1))
+    qr_ev3_senders=[]
+    for i in range(len(ev3_cnxs)):
+        qr_ev3_senders.append(QR_ev3_sender(ev3_cnxs[i],i))
+    for qr_ev3_sender in qr_ev3_senders:
+        qr_ev3_sender.start()
