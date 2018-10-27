@@ -1,0 +1,15 @@
+
+.selected {
+    background: green;
+}
+
+body {
+    text-align: center;
+    padding-top: 40vh;
+}
+
+button.btn{
+    margin: 10px;
+    font-size: 2em;
+} 
+
