@@ -42,7 +42,7 @@ class request_recieve(Thread):
             self.response(version+b" 500 Internal Server Error\r\n\r\n<h1>500 Internal Server Error</h1>"+b"".join([b"<br/>"+x for x in infos]))
         elif code==501:
             self.response(version+b" 501 Not Implemented\r\n\r\n<h1>501 Not Implemented</h1>"+b"".join([b"<br/>"+x for x in infos]))
-    def verify_that(self,ctn,**kwargs):
+    def verify_that(self,ctn,version,**kwargs):
         condition=ctn.split(b"\n")[0][13:].decode()
         kwargs["a"]=[]
         if condition.endswith("\r"):
@@ -160,7 +160,7 @@ class request_recieve(Thread):
                         ctn=f.read()
                     while 1:
                             if ctn.startswith(b"verify that :"):
-                                ctn=self.verify_that(ctn,sign=sign,path=path,parameters=parameters,headers=headers,url=url,ip_srv=addr)#,get_voyage=get_voyage,reset_screen=reset_screen,command_drink=command_drink,get_etape=get_etape)
+                                ctn=self.verify_that(ctn,version,sign=sign,path=path,parameters=parameters,headers=headers,url=url,ip_srv=addr)#,get_voyage=get_voyage,reset_screen=reset_screen,command_drink=command_drink,get_etape=get_etape)
                                 if ctn==0:
                                     return
                             elif ctn.startswith(b"define :"):
