@@ -12,7 +12,7 @@ const buttons = document.querySelectorAll('.boissons button')
 
 buttons.forEach(button  => {
     button.addEventListener('click', event => {
-        //choix(event.target.dataset.boisson);
+        choix(event.target.dataset.boisson);
 
         buttons.forEach(button => {
             button.classList.remove('btn-success');
