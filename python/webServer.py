@@ -7,11 +7,12 @@ use_bluetooth=True
 try:
     import bluetooth
 except ImportError:
+    raise ImportWarning("pybluez isn't installed on your computer")
     use_bluetooth=False
 import hashlib
 import EV3BT
 from threading import Thread
-addr="127.0.0.1" #const
+addr="192.168.56.101" #const
 def sign(value):
     signeur=hmac.HMAC(b"t6QpYbBKR5gJm8tLddkA5xxnehGqxKpl7C83qqJbF3JYR2jupah54Zl5xLTNw1L5N9icHQ4O2FSS0EzbVeDh6HXHAqnWZeU1lqZZNRx3AzO4CGrpjiu5Z8QWAIgmgAQKD0Z9nFj4Fp9bGWJTC51WTk",digestmod=hashlib.sha256)
     signeur.update(value)
@@ -88,7 +89,6 @@ class request_recieve(Thread):
             if len(url.split(b"?"))==2:
                 for x in url.split(b"?")[1].split(b"&"):
                     parameters[x.split(b"=")[0]]=x.split(b"=")[1]
-                    print(parameters)
             elif len(url.split(b"?"))>2:
                 self.default_response(version,400)
                 return
@@ -151,7 +151,6 @@ class request_recieve(Thread):
             while i<len(request) and request[i]!="":
                 headers[request[i].split(b":")[0]]=b":".join(request[i].split(b":")[1:])
                 i+=1
-            print(headers)
             if request[0].split(b" ")[0]==b"GET":
                 try:
                     if path.decode()[-1]=="/":
