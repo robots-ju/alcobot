@@ -6,7 +6,12 @@ function choix (boisson){
 } 
 
 function send () {
-    console.log('la boisson commandé est' + ' ' + typeDeBoisson);
+    if(typeDeBoisson !=undefined){
+        console.log('la boisson commandé est' + ' ' + typeDeBoisson);
+        return;
+    }
+    
+    console.log("Vous n'avez rien commandé !!");
 }
 const buttons = document.querySelectorAll('.boissons button')
 
