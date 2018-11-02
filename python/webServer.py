@@ -12,19 +12,30 @@ except ImportError:
 import hashlib
 import EV3BT
 from threading import Thread
+from http import HTTPStatus
+values_http={}
+for x in dict(HTTPStatus.__members__.items()):
+    values_http[dict(HTTPStatus.__members__.items())[x].value]=x
 addr="192.168.56.101" #const
 def sign(value):
     signeur=hmac.HMAC(b"t6QpYbBKR5gJm8tLddkA5xxnehGqxKpl7C83qqJbF3JYR2jupah54Zl5xLTNw1L5N9icHQ4O2FSS0EzbVeDh6HXHAqnWZeU1lqZZNRx3AzO4CGrpjiu5Z8QWAIgmgAQKD0Z9nFj4Fp9bGWJTC51WTk",digestmod=hashlib.sha256)
     signeur.update(value)
     return signeur.hexdigest()
-def get_voyage(robot):
-    return qr_ev3_senders[robot].get_voyage()
-def reset_screen(robot):
-    qr_ev3_senders[robot].reset_screen()
-def command_drink(robot,drink):
-    qr_ev3_senders[robot].command_drink(drink)
-def get_etape(robot):
-    return qr_ev3_senders[robot].get_etape()
+if use_bluetooth:
+    def get_voyage(robot):
+        return qr_ev3_senders[robot].get_voyage()
+    def reset_screen(robot):
+        qr_ev3_senders[robot].reset_screen()
+    def command_drink(robot,drink):
+        qr_ev3_senders[robot].command_drink(drink)
+    def get_etape(robot):
+        return qr_ev3_senders[robot].get_etape()
+else:
+    def get_voyage(*args,**kwargs):
+        pass
+    reset_screen=get_voygae
+    command_drink=get_voyage
+    get_etape=get_voyage
 class request_recieve(Thread):
     def __init__(self,a):
         Thread.__init__(self)
@@ -32,17 +43,21 @@ class request_recieve(Thread):
     def response(self,response):
         self.cnx.send(response)
         self.cnx.close()
-    def default_response(self,version,code,*infos):
+    def default_response(self,version,code,*infos,headers=b""):
         if code==404:
-            self.response(version+b" 404 Not Found\r\n\r\n<h1>404 Not Found</h1><br/>This page was not found on this server."+b"".join([b"<br/>"+x for x in infos]))
+            self.response(version+b" 404 Not Found\r\n"+headers+b"\r\n<h1>404 Not Found</h1><br/>This page was not found on this server."+b"".join([b"<br/>"+x for x in infos]))
         elif code==400:
-            self.response(version+b" 400 Bad Request\r\n\r\n<h1>400 Bad Request</h1><br/>Your browser sent a request that this server could not understand."+b"".join([b"<br/>"+x for x in infos]))
+            self.response(version+b" 400 Bad Request\r\n"+headers+b"\r\n<h1>400 Bad Request</h1><br/>Your browser sent a request that this server could not understand."+b"".join([b"<br/>"+x for x in infos]))
         elif code==403:
-            self.response(version+b" 403 Forbidden\r\n\r\n<h1>403 Forbidden</h1><br/>You are not authorized to view this page."+b"".join([b"<br/>"+x for x in infos]))
+            self.response(version+b" 403 Forbidden\r\n"+headers+b"\r\n<h1>403 Forbidden</h1><br/>You are not authorized to view this page."+b"".join([b"<br/>"+x for x in infos]))
         elif code==500:
-            self.response(version+b" 500 Internal Server Error\r\n\r\n<h1>500 Internal Server Error</h1>"+b"".join([b"<br/>"+x for x in infos]))
+            self.response(version+b" 500 Internal Server Error\r\n"+headers+b"\r\n<h1>500 Internal Server Error</h1>"+b"".join([b"<br/>"+x for x in infos]))
         elif code==501:
-            self.response(version+b" 501 Not Implemented\r\n\r\n<h1>501 Not Implemented</h1>"+b"".join([b"<br/>"+x for x in infos]))
+            self.response(version+b" 501 Not Implemented\r\n"+headers+b"\r\n<h1>501 Not Implemented</h1>"+b"".join([b"<br/>"+x for x in infos]))
+        elif code in values_http:
+            self.response(version+b" "+str(code).encode()+b" "+values_http[code].encode()+b"\r\n"+headers+b"\r\n"+b"".join([b"<br/>"+x for x in infos]))
+        else:
+            raise ValueError("unknow http code : "+str(code))
     def verify_that(self,ctn,version,**kwargs):
         condition=ctn.split(b"\n")[0][13:].decode()
         kwargs["a"]=[]
@@ -68,6 +83,25 @@ class request_recieve(Thread):
         exec("a.append(str("+expr+").encode())",kwargs)
         ctn=b"\n".join(ctn.split(b"\n")[1:])
         return kwargs["a"][0].join(ctn.split(value.encode()))
+    def exec_(self,ctn,**kwargs):
+        expr=ctn.split(b"\n")[0][8:].decode()
+        if expr.endswith("\r"):
+            expr=expr[:-1]
+        exec(expr,kwargs)
+        return b"\n".join(ctn.split(b"\n")[1:])
+    def add_header(self,ctn,**kwargs):
+        kwargs["a"]=[]
+        header=ctn.split(b"\n")[0][12:].decode()
+        name = header.split(";")[0]
+        while name.startswith(" "):
+            name=name[1:]
+        while name.endswith(" "):
+            name=name[:-1]
+        expression = header.split(";")[1]
+        if expression.endswith("\r"):
+            expression=expression[:-1]
+        exec("a.append(str("+expression+").encode())",kwargs)
+        return name.encode()+b": "+kwargs["a"][0]+b"\r\n"
     def run(self):
         self.cnx,infos=self.a.accept()
         request_recieve(self.a).start()
@@ -151,6 +185,7 @@ class request_recieve(Thread):
             while i<len(request) and request[i]!="":
                 headers[request[i].split(b":")[0]]=b":".join(request[i].split(b":")[1:])
                 i+=1
+            response_headers=b""
             if request[0].split(b" ")[0]==b"GET":
                 try:
                     if path.decode()[-1]=="/":
@@ -159,16 +194,29 @@ class request_recieve(Thread):
                         ctn=f.read()
                     while 1:
                             if ctn.startswith(b"verify that :"):
-                                ctn=self.verify_that(ctn,version,sign=sign,path=path,parameters=parameters,headers=headers,url=url,ip_srv=addr)#,get_voyage=get_voyage,reset_screen=reset_screen,command_drink=command_drink,get_etape=get_etape)
+                                ctn=self.verify_that(ctn,version,sign=sign,path=path,parameters=parameters,headers=headers,url=url,ip_srv=addr,ip_cli=infos[0],get_voyage=get_voyage,reset_screen=reset_screen,command_drink=command_drink,get_etape=get_etape)
                                 if ctn==0:
                                     return
                             elif ctn.startswith(b"define :"):
-                                ctn=self.define(ctn,sign=sign,path=path,parameters=parameters,headers=headers,url=url,ip_srv=addr)#,get_voyage=get_voyage,reset_screen=reset_screen,command_drink=command_drink,get_etape=get_etape)
+                                ctn=self.define(ctn,sign=sign,path=path,parameters=parameters,headers=headers,url=url,ip_srv=addr,ip_cli=infos[0],get_voyage=get_voyage,reset_screen=reset_screen,command_drink=command_drink,get_etape=get_etape)
+                            elif ctn.startswith(b"exec :"):
+                                ctn=self.exec_(ctn,sign=sign,path=path,parameters=parameters,headers=headers,url=url,ip_srv=addr,ip_cli=infos[0],get_voyage=get_voyage,reset_screen=reset_screen,command_drink=command_drink,get_etape=get_etape)
+                            elif ctn.startswith(b"set http code :"):
+                                code=ctn.split(b"\n")[0][15:]
+                                if code.endswith(b"\r"):
+                                    code=code[:-1]
+                                code=int(code.decode())
+                                self.default_response(version,code,headers=response_headers)
+                            elif ctn.startswith(b"add header :"):
+                                response_headers+=self.add_header(ctn,sign=sign,path=path,parameters=parameters,headers=headers,url=url,ip_srv=addr,ip_cli=infos[0],get_voyage=get_voyage,reset_screen=reset_screen,command_drink=command_drink,get_etape=get_etape)
+                                ctn=b"\n".join(ctn.split(b"\n")[1:])
                             else:
                                 break
-                    self.response(version+b" 200 OK\r\n\r\n"+ctn)
+                    self.response(version+b" 200 OK\r\n"+response_headers+b"\r\n"+ctn)
                     return
                 except FileNotFoundError:
+                    self.default_response(version,404)
+                except IOError:
                     self.default_response(version,404)
             elif request[0].split(b" ")[0]==b"POST":
                 self.default_response(version,501)
@@ -202,8 +250,9 @@ if use_bluetooth:
                 mailbox,msg,a=EV3BT.decodeMessage(msg,EV3BT.MessageType.Numeric)
                 if mailbox=="qrcode":
                     qr=qrcode.QRCode()
-                    url="http://"+addr+"/command.html?robot={}&voyage={}".format(self.no,int(msg))
+                    url="/commande/command.html?robot={}&voyage={}".format(self.no,int(msg))
                     signature=sign(url)
+                    url="http://"+addr+url
                     url+="&signature="
                     url+=signature
                     qr.add_data(url)
