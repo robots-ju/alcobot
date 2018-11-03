@@ -9,6 +9,9 @@ try:
 except ImportError:
     raise ImportWarning("pybluez isn't installed on your computer")
     use_bluetooth=False
+except ModuleNotFoundError:
+    raise ImportWarning("pybluez isn't installed on your computer")
+    use_bluetooth=False
 import hashlib
 import EV3BT
 from threading import Thread
