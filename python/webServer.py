@@ -19,7 +19,7 @@ from http import HTTPStatus
 values_http={}
 for x in dict(HTTPStatus.__members__.items()):
     values_http[dict(HTTPStatus.__members__.items())[x].value]=x
-addr="192.168.2.86" #const
+addr=input("subdomain ngrok :\n")+".ngrok.io" #const
 def sign(value):
     signeur=hmac.HMAC(b"t6QpYbBKR5gJm8tLddkA5xxnehGqxKpl7C83qqJbF3JYR2jupah54Zl5xLTNw1L5N9icHQ4O2FSS0EzbVeDh6HXHAqnWZeU1lqZZNRx3AzO4CGrpjiu5Z8QWAIgmgAQKD0Z9nFj4Fp9bGWJTC51WTk",digestmod=hashlib.sha256)
     signeur.update(value)
