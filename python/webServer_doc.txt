@@ -7,7 +7,7 @@ exec : python
 add header : name ; expression
     add a header to the http response
 set http code : code
-    respond to the client with this code
+    respond to the client with this code (à mettre en dernier !!!)
 
 sign function(bytes) -> str signature
 path bytes : path url jusquà ?

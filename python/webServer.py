@@ -16,11 +16,18 @@ from http import HTTPStatus
 values_http={}
 for x in dict(HTTPStatus.__members__.items()):
     values_http[dict(HTTPStatus.__members__.items())[x].value]=x
-addr="192.168.56.101" #const
+addr="192.168.2.86" #const
 def sign(value):
     signeur=hmac.HMAC(b"t6QpYbBKR5gJm8tLddkA5xxnehGqxKpl7C83qqJbF3JYR2jupah54Zl5xLTNw1L5N9icHQ4O2FSS0EzbVeDh6HXHAqnWZeU1lqZZNRx3AzO4CGrpjiu5Z8QWAIgmgAQKD0Z9nFj4Fp9bGWJTC51WTk",digestmod=hashlib.sha256)
     signeur.update(value)
     return signeur.hexdigest()
+def generate_url(robot,voyage):
+    url="/commande/?robot={}&voyage={}".format(robot,voyage)
+    signature=sign(url.encode())
+    url="http://"+addr+url
+    url+="&signature="
+    url+=signature
+    return url
 if use_bluetooth:
     def get_voyage(robot):
         return qr_ev3_senders[robot].get_voyage()
@@ -188,8 +195,20 @@ class request_recieve(Thread):
             response_headers=b""
             if request[0].split(b" ")[0]==b"GET":
                 try:
+                    if path==b"/url_test":
+                        qr=qrcode.QRCode()
+                        qr.add_data(generate_url(int(parameters.get(b"robot",b"0").decode()),int(parameters.get(b"voyage",b"0").decode())))
+                        qr.make()
+                        qr.make_image().save("tmp.png")
+                        with open("tmp.png","rb")as f:
+                            qr=f.read()
+                        os.remove("tmp.png")
+                        self.response(version+b" 200 OK\r\nContent-type: image/png\r\n\r\n"+qr)
+                        return
                     if path.decode()[-1]=="/":
                         path+=b"index.html"
+                    if os.path.isdir(path.decode()):
+                        path+=b"/index.html"
                     with open("./../WEB"+path.decode(),"rb")as f:
                         ctn=f.read()
                     while 1:
@@ -206,7 +225,7 @@ class request_recieve(Thread):
                                 if code.endswith(b"\r"):
                                     code=code[:-1]
                                 code=int(code.decode())
-                                self.default_response(version,code,headers=response_headers)
+                                self.default_response(version,code,ctn,headers=response_headers)
                             elif ctn.startswith(b"add header :"):
                                 response_headers+=self.add_header(ctn,sign=sign,path=path,parameters=parameters,headers=headers,url=url,ip_srv=addr,ip_cli=infos[0],get_voyage=get_voyage,reset_screen=reset_screen,command_drink=command_drink,get_etape=get_etape)
                                 ctn=b"\n".join(ctn.split(b"\n")[1:])
@@ -241,7 +260,7 @@ if use_bluetooth:
         def command_drink(self,drink):
             self.ev3.send(EV3BT.encodeMessage(EV3BT.MessageType.Numeric,"command",2+drink))
         def get_etape(self):
-            self.ev3.send(EV3BT.encodeMessage(EV3BT.MessageType.Numeric,"command",8))
+            self.ev3.send(EV3BT.encodeMessage(EV3BT.MessageType.Numeric,"command",7))
             return EV3BT.decodeMessage(self.ev3.recv(1024),EV3BT.MessageType.Text)
         def run(self):
             while 1:
@@ -250,14 +269,8 @@ if use_bluetooth:
                 mailbox,msg,a=EV3BT.decodeMessage(msg,EV3BT.MessageType.Numeric)
                 if mailbox=="qrcode":
                     qr=qrcode.QRCode()
-                    url="/commande/command.html?robot={}&voyage={}".format(self.no,int(msg))
-                    signature=sign(url)
-                    url="http://"+addr+url
-                    url+="&signature="
-                    url+=signature
-                    qr.add_data(url)
+                    qr.add_data(generate_url(self.no,int(msg)))
                     qr.make()
-                    print("qrcode generé")
                     rgf=qr_rgf.rgf_generator(qr.modules)
                     while 1:
                         self.ev3.send(bytes([35,0,0,0,1,0x92,len(rgf)%256,(len(rgf)//256)%256,0,0])+b"../prjs/alcobot/qrcode.rgf\0")
@@ -278,11 +291,11 @@ a.bind(("",80))
 a.listen(1)
 request_recieve(a).start()
 if use_bluetooth:
-    ev3_addrs=[]
+    ev3_addrs=["00:16:53:44:FE:90"]
     ev3_cnxs=[]
-    for addr in ev3_addrs:
+    for addr_ in ev3_addrs:
         ev3_cnxs.append(bluetooth.BluetoothSocket(3))
-        ev3_cnxs[-1].connect((addr,1))
+        ev3_cnxs[-1].connect((addr_,1))
     qr_ev3_senders=[]
     for i in range(len(ev3_cnxs)):
         qr_ev3_senders.append(QR_ev3_sender(ev3_cnxs[i],i))
