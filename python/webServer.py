@@ -6,11 +6,8 @@ import qr_rgf
 use_bluetooth=True
 try:
     import bluetooth
-except ImportError:
-    raise ImportWarning("pybluez isn't installed on your computer")
-    use_bluetooth=False
 except ModuleNotFoundError:
-    raise ImportWarning("pybluez isn't installed on your computer")
+    print("pybluez isn't installed on your computer")
     use_bluetooth=False
 import hashlib
 import EV3BT
@@ -43,7 +40,7 @@ if use_bluetooth:
 else:
     def get_voyage(*args,**kwargs):
         pass
-    reset_screen=get_voygae
+    reset_screen=get_voyage
     command_drink=get_voyage
     get_etape=get_voyage
 class request_recieve(Thread):
@@ -215,6 +212,8 @@ class request_recieve(Thread):
                     with open("./../WEB"+path.decode(),"rb")as f:
                         ctn=f.read()
                     while 1:
+                            if ctn.startswith(b"\r"):
+                                ctn=ctn[1:]
                             if ctn.startswith(b"verify that :"):
                                 ctn=self.verify_that(ctn,version,sign=sign,path=path,parameters=parameters,headers=headers,url=url,ip_srv=addr,ip_cli=infos[0],get_voyage=get_voyage,reset_screen=reset_screen,command_drink=command_drink,get_etape=get_etape)
                                 if ctn==0:
