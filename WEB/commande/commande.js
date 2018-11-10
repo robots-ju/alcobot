@@ -6,12 +6,17 @@ function choix (boisson){
 } 
 
 function send () {
-    if(typeDeBoisson !=undefined){
-        console.log('la boisson commandé est' + ' ' + typeDeBoisson);
-        return;
-    }
-    
-    console.log("Vous n'avez rien commandé !!");
+    fetch('commande.json?boisson=' + typeDeBoisson)
+        .catch(erreur => {
+            alert(erreur);
+        })
+        .then (reponse => {
+            if(reponse.status === 403) {
+                console.log('Vous n\'avez pas l\'autorisation');
+            }else if (reponse.status !== 200) {
+                alert('Code inconnue')
+            }
+        }); 
 }
 const buttons = document.querySelectorAll('.boissons button')
 
