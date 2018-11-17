@@ -5,17 +5,71 @@ add header : Content-type ; "text/html"
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
         <link rel="stylesheet" href="commande.css">
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
         <meta charset="UTF-8">
     </head>
     <body>
         <img class="logo" src ="src/images/logo-horizontal.svg" width="200" height="40" alt = "Logo de la Coupe Robots-JU">
-        <div class="boissons">
-            <button class="btn btn-light" data-boisson='jus de pomme'><img src="src/images/apple.png" width="124" height="124"> <br>Jus de pomme</button>
-            <button class="btn btn-light" data-boisson='eau'><img src="src/images/drop.png" width="124" height="124"> <br>Eau</button>
-            <button class="btn btn-light" data-boisson='coca'> <img src="src/images/cola.png" width="124" height="124"> <br>Coca</button>
-            <button class="btn btn-light" data-boisson='limonade citron'><img src="src/images/lemon.png" width="124" height="124"> <br>Limonade citron</button>
+        <div class="boissons bouttonBoisson">
+            <button class="btn btn-light" data-boisson='theFroid'><img src="src/images_sans_python/iced-tea.png" width="124" height="124" > <br>Thé froid</button>
+            <button id="eau" class="btn btn-light" data-toggle="modal" data-target="#typeEau"><img src="src/images_sans_python/eau.png" width="124" height="124"> <br>Eau</button>
+            <button class="btn btn-light" data-boisson='coca'> <img src="src/images_sans_python/soda.png" width="124" height="124"> <br>Coca</button>
+            <button class="btn btn-light" data-boisson='limonadeCitron'><img src="src/images_sans_python/lemon-juice.png" width="124" height="124"> <br>Limonade</button>
         </div>
-        <button type="button" id='send' class="btn btn-lg btn-primary" disabled>Envoyez la commande</button>
+        <button type="button" id='send1' class="btn btn-lg btn-primary" disabled data-toggle="modal" data-target="#demandeCommande">Envoyez la commande</button>
+        <!-- Demande d'envoie de la commande -->
+        <div class="modal fade" id="demandeCommande" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">Voulez-vous envoyez la commande ?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                </button>
+                </div>
+                <div class="modal-body">
+                    Votre commande:<br>
+                    <img id="boissonCommandeImage" width="124" height="124"><br>
+                    <div id="boissonCommande"></div>
+                
+                </div>
+                <div class="modal-footer text-center d-block">
+                <button id="noSend" type="button" class="btn btn-secondary" data-dismiss="modal">Non</button>
+                    <button id="send" type="button" class="btn btn-primary" data-dismiss="modal" data-target="#confirmation">Oui</button>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class="modal fade" id="typeEau" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-body">
+                           <h5>Quel type d'eau voulez-vous ?</h5>
+                           <button type="button" class="btn btn-light eau" data-boisson="eauPlate" data-dismiss="modal"><img src="src/images_sans_python/eau.png" width="124" height="124"><br> Eau plate</button>
+                           <button type="button" class="btn btn-light eau" data-boisson="eauGazeuse" data-dismiss="modal"><img src="src/images_sans_python/eauGazeuse.png" width="124" height="124"><br> Eau gazeuse</button>
+                    </div>
+                </div>
+                </div>
+        </div>
+        <div class="modal fade" id="confirmation" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title">Confirmaion de commande</h5>
+                            </div>
+                            <div class="modal-body">
+                              <p>Votre commande à bien été envoyé</p><br>
+                              Votre numéro de commande est le :<br>
+                              <div id="numeroCommande"></div>
+                            </div>
+                            <div class="modal-footer">
+                              <button id="newCommand" type="button" class="btn btn-primary" data-dismiss="modal">Nouvelle commande</button>
+                            </div>
+                          </div>
+                       </div>
+        </div>
         <script src="commande.js"></script>
+
     </body>
 </html>
