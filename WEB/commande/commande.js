@@ -1,5 +1,6 @@
 let typeDeBoisson;
 let numberCommande = 0;
+let buttonBoisson;
 
 function choix (boisson){
     typeDeBoisson = boisson
@@ -57,9 +58,11 @@ function send () {
 
 function reload () {
     typeDeBoisson = null;
-    docmuent.querySelectorAll('btn').remove('btn-succes');
+    buttonBoisson.classList.remove('btn-success');
+    eau.classList.remove('btn-success');
 }
 const buttons = document.querySelectorAll('[data-boisson]')
+const eau = document.getElementById('eau');
 
 buttons.forEach(button  => {
     button.addEventListener('click', event => {
@@ -69,12 +72,15 @@ buttons.forEach(button  => {
         buttons.forEach(button => {
             button.classList.remove('btn-success');
             button.classList.add('btn-light');
+            eau.classList.remove('btn-success');
+            eau.classList.add('btn-light')
         });
         button.classList.remove('btn-light');
         button.classList.add('btn-success');
+        buttonBoisson = button;
         if(boisson === 'eauPlate' || boisson === 'eauGazeuse'){
-            document.getElementById('eau').classList.remove('btn-light');
-            document.getElementById('eau').classList.add('btn-success');
+            eau.classList.remove('btn-light');
+            eau.classList.add('btn-success');
         }
     })
 })
