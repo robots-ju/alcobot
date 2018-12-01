@@ -1,12 +1,12 @@
 let typeDeBoisson;
 let numberCommande = 0;
 let buttonBoisson;
+let boissonCommandeTexte = document.getElementById('boissonCommande');
+let imageSrc;
 
 function choix (boisson){
     typeDeBoisson = boisson
     document.getElementById('send1').disabled=false;
-    let boissonCommandeTexte = document.getElementById('boissonCommande');
-    let imageSrc;
 
     switch (typeDeBoisson){
         case 'theFroid': 
@@ -39,27 +39,34 @@ function choix (boisson){
 } 
 
 function send () {
-    numberCommande++;
-    document.getElementById('numeroCommande').textContent=numberCommande;
-    fetch('commande.json?boisson=' + typeDeBoisson)
-        .catch(erreur => {
-            alert(erreur);
-        })
-        .then (reponse => {
-            if(reponse.status === 403) {
-                console.log('Vous n\'avez pas l\'autorisation');
-            }else if (reponse.status !== 200) {
-                alert('Code inconnue')
-            }else {
-                $('#confirmation').modal();
-            }
-        }); 
+    if (typeDeBoisson == null) {
+        return;
+    }else {
+        numberCommande++;
+        document.getElementById('numeroCommande').textContent=numberCommande;
+        fetch('commande.json?boisson=' + typeDeBoisson)
+            .catch(erreur => {
+                alert(erreur);
+            })
+            .then (reponse => {
+                if(reponse.status === 403) {
+                    console.log('Vous n\'avez pas l\'autorisation');
+                }else if (reponse.status !== 200) {
+                    alert('Code inconnue')
+                }else {
+                    $('#confirmation').modal();
+                }
+            }); 
+    }
+
 }
 
 function reload () {
     typeDeBoisson = null;
     buttonBoisson.classList.remove('btn-success');
     eau.classList.remove('btn-success');
+    boissonCommandeTexte.textContent = null;
+    imageSrc = null;    
 }
 const buttons = document.querySelectorAll('[data-boisson]')
 const eau = document.getElementById('eau');
