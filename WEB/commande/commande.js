@@ -38,8 +38,8 @@ function choix (boisson){
     document.getElementById('boissonCommandeImage').src='src/images_sans_python/' + imageSrc;
 } 
 
-function convertBoissonToNumber (boisson){
-    switch (boisson){
+function convertBoissonToNumber (typeBoisson){
+    switch (typeBoisson){
         case 'theFroid' :
         return 1;
         
