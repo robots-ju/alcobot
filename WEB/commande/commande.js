@@ -63,7 +63,7 @@ function send () {
     }else {
         numberCommande++;
         document.getElementById('numeroCommande').textContent=numberCommande;
-        fetch('commande.json?boisson=' + convertBoissonToNumber())
+        fetch('commande.json?boisson=' + convertBoissonToNumber(typeDeBoisson))
             .catch(erreur => {
                 alert(erreur);
             })
