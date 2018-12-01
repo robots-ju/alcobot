@@ -38,13 +38,31 @@ function choix (boisson){
     document.getElementById('boissonCommandeImage').src='src/images_sans_python/' + imageSrc;
 } 
 
+function convertBoissonToNumber (boisson){
+    switch (boisson){
+        case 'theFroid' :
+        return 1;
+        
+        case 'eauPlate':
+        return 2;
+
+        case 'eauGazeuse':
+        return 3;
+
+        case 'coca':
+        return 4;
+
+        case 'limonadeCitron':
+        return 5;
+}
+
 function send () {
     if (typeDeBoisson == null) {
         return;
     }else {
         numberCommande++;
         document.getElementById('numeroCommande').textContent=numberCommande;
-        fetch('commande.json?boisson=' + typeDeBoisson)
+        fetch('commande.json?boisson=' + convertBoissonToNumber())
             .catch(erreur => {
                 alert(erreur);
             })
