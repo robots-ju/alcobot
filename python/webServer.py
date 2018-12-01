@@ -262,7 +262,7 @@ if use_bluetooth:
         def command_drink(self,drink):
             self.ev3.send(EV3BT.encodeMessage(EV3BT.MessageType.Numeric,"command",2+drink))
         def get_etape(self):
-            self.ev3.send(EV3BT.encodeMessage(EV3BT.MessageType.Numeric,"command",7))
+            self.ev3.send(EV3BT.encodeMessage(EV3BT.MessageType.Numeric,"command",8))
             return EV3BT.decodeMessage(self.ev3.recv(1024),EV3BT.MessageType.Text)
         def run(self):
             while 1:
