@@ -1,0 +1,11 @@
+body {
+    position: center;
+    background: #e67e22;
+    color: white;
+    font-size: 24px;
+}
+
+.numCommande{
+    text-align: center;
+    font-size: 18px;
+}

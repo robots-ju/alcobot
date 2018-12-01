@@ -1,15 +1,40 @@
-verify that : len(parameters)==4
+<!-- verify that : len(parameters)==4
 verify that : b"signature" in parameters
 verify that : sign(b"&".join(url.split(b"&")[:-1]))==parameters["signature"]
 define : ROBOT ; parameters["robot"].decode()
 define : VOYAGE ; parameters["voyage"].decode()
 define : BOISSON ; parameters["boisson"].decode()
-<!--verify that : (command_drink(ROBOT,BOISSON) and False) or get_voyage(ROBOT)==VOYAGE-->
+verify that : (command_drink(ROBOT,BOISSON) and False) or get_voyage(ROBOT)==VOYAGE-->
 <html>
     <head>
-        <title>votre boisson est en cours de preparation</title>
+        <title>Alcobot Suivi commande</title>
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+        <link rel="stylesheet" href="suivi.css">
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+        <meta charset="UTF-8">
     </head>
     <body>
-
+        <div id="suiviCommande"></div>
+        <div class="container">
+            <div class="row">
+              <div class="col-sm numCommande" >
+                COMMANDES EN ATTENTE
+                <div id="comAttente"></div>
+              </div>
+              <div class="col-sm numCommande" >
+                COMMANDES EN PRÉPARATION
+                <div id="comPreparation"></div>
+              </div>
+              <div class="col-sm numCommande">
+                COMMANDE À RÉCUPERER
+                <div id="comRecuperer"> </div>
+              </div>
+            </div>
+          </div>
+        
+        <script src="suivi.js"></script>
     </body>
 </html>
