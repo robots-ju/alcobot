@@ -54,7 +54,8 @@ function convertBoissonToNumber (typeBoisson){
 
         case 'limonadeCitron':
         return 5;
-}
+    }
+};
 
 function send () {
     if (typeDeBoisson == null) {
