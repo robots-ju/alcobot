@@ -6,7 +6,7 @@ let imageSrc;
 
 function choix (boisson){
     typeDeBoisson = boisson
-    document.getElementById('send1').disabled=false;
+    $('#send1').prop('disabled', false);
 
     switch (typeDeBoisson){
         case 'theFroid': 
@@ -85,7 +85,8 @@ function reload () {
     buttonBoisson.classList.remove('btn-success');
     eau.classList.remove('btn-success');
     boissonCommandeTexte.textContent = null;
-    imageSrc = null;    
+    imageSrc = null;
+    $('#send1').prop('disabled', true);
 }
 const buttons = document.querySelectorAll('[data-boisson]')
 const eau = document.getElementById('eau');
