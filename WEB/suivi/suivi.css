@@ -9,3 +9,8 @@ body {
     text-align: center;
     font-size: 18px;
 }
+
+.col-sm:not(:last-child) {
+    border-right: solid 5px white;
+    min-height: 25vh;
+}
