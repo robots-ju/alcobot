@@ -1,0 +1,42 @@
+
+.selected {
+    background: #44bd32;
+}
+
+body {
+    background-color: #222f3e;
+    text-align: center;
+}
+
+.boissons .btn{
+    text-align: center;
+    margin: 10px;
+    font-size: 2em;
+    margin-top: 20vh;
+} 
+.bouttonBoisson {
+    font-size: 150%;
+    text-align: center;
+}
+
+#send1 {
+    margin-top: 125px;
+    text-align: center;
+}
+ .logo {
+     margin-top: 10px;
+     text-align: left;
+ }
+
+ #noSend {
+    text-align: left;
+}
+
+
+.modal-footer{
+    padding-top: 20px;
+}
+
+.eau {
+    margin-top: 20px;
+}

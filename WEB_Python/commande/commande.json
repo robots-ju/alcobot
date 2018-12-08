@@ -1,0 +1,5 @@
+verify that : get_etape(0)==0
+exec : command_drink(0,int(parameters[b"boisson"].deocde()))
+{
+    "satus": "Ok"
+}
