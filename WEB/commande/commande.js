@@ -32,14 +32,8 @@ function choix(boisson) {
             boissonCommandeTexte.textContent = 'Coca';
             imageSrc = 'soda.png';
             break;
-
-        case 'limonadeCitron':
-            boissonCommandeTexte.textContent = 'Limonade citron';
-            imageSrc = 'lemon-juice.png'
-            break;
-
     }
-    document.getElementById('boissonCommandeImage').src = 'src/images_sans_python/' + imageSrc;
+    document.getElementById('boissonCommandeImage').src = 'src/images/' + imageSrc;
 }
 
 function convertBoissonToNumber(typeBoisson) {
@@ -85,15 +79,21 @@ function send() {
 socket.on('confirmation', function(numberCommande){
     $('#numeroCommande').text(numberCommande);
     $('#confirmation').modal();
+    reload();
 })
 
 function reload() {
-    typeDeBoisson = null;
-    buttonBoisson.classList.remove('btn-success');
-    eau.classList.remove('btn-success');
-    boissonCommandeTexte.textContent = null;
-    imageSrc = null;
-    $('#send1').prop('disabled', true);
+    setTimeout (
+        () => {
+            typeDeBoisson = null;
+            buttonBoisson.classList.remove('btn-success');
+            eau.classList.remove('btn-success');
+            boissonCommandeTexte.textContent = null;
+            imageSrc = null;
+            $('#send1').prop('disabled', true);
+            $('#confirmation').modal('toggle');
+        }, 3000
+    );
 }
 const buttons = document.querySelectorAll('[data-boisson]')
 const eau = document.getElementById('eau');

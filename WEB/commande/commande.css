@@ -10,9 +10,9 @@ body {
 
 .boissons .btn{
     text-align: center;
-    margin: 10px;
+    margin: 5px;
     font-size: 2em;
-    margin-top: 20vh;
+    margin-top: 5vh;
 } 
 .bouttonBoisson {
     font-size: 150%;
@@ -20,7 +20,7 @@ body {
 }
 
 #send1 {
-    margin-top: 125px;
+    margin-top: 75px;
     text-align: center;
 }
  .logo {
