@@ -1,6 +1,7 @@
 const http = require('http');
 const hostname = '127.0.0.1';
 const port = 3000;
+const Manager = require('./ev3/BrickManager');
 
 const server = http.createServer((req, res) => {
   res.statusCode = 200;
@@ -20,7 +21,8 @@ io.on('connection', function (socket) {
   });
   socket.on('commandes', function (boisson) {
     console.log(boisson)
-    listeDesCommande.push(new Commande(boisson));
+    sendCommande(boisson);
+    listeDesCommande.push(new Commande(boisson, boisson));
     console.log(listeDesCommande);
     io.emit('listeCommandes', listeDesCommande);
     socket.emit('confirmation', lastNumberCommande);
@@ -37,3 +39,62 @@ class Commande {
 }
 let lastNumberCommande = 0;
 let listeDesCommande = [];
+
+//robotique//
+
+// Les noms de brique se passent en arguments
+const allowedBrickNames = process.argv.slice(2);
+
+//Tableau des briques connecté
+const availableBricks = [];
+
+//Créations du manager
+const manager = new Manager();
+manager.bind();
+
+function indexFromBrickName(name) {
+  return availableBricks.findIndex(brick => brick.name === name);
+}
+
+manager.on('foundBrick', brick => {
+  if (allowedBrickNames.indexOf(brick.name) === -1) {
+    console.info('Détecté la brique ' + brick.name + ' mais elle n\'est pas whitelistée. Pas connecté.');
+
+    return;
+  }
+
+  console.log("Hey, j'ai vu cette brique: " + brick.name);
+
+  brick.connect();
+
+  brick.on('ready', () => {
+    console.log('Nouvelle brique connectée. Liste des briques:');
+
+    availableBricks.push(brick);
+
+    availableBricks.forEach((brick, index) => {
+      console.log('#' + (index + 1) + ' - Nom: ' + brick.name + ' - SN: ' + brick.serialNumber);
+    });
+  });
+});
+
+function convertBoissonToNumber (boisson) {
+  switch (boisson) {
+    case 'theFroid':
+    return 1;
+    case 'eauPlate':
+    return 2;
+    case 'eauGazeuse': 
+    return 3;
+    case 'coca':
+    return 4;
+  }
+    
+}
+
+function sendCommande (boisson) {
+  if(availableBricks.length > 0) {
+    availableBricks[0].sendMailboxMessage('command', convertBoissonToNumber(boisson));
+  }
+  
+} 

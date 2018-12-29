@@ -11,7 +11,7 @@ class Manager extends events.EventEmitter {
 
         this.socket.on('error', (err) => {
             console.log(`EV3 Manager socket error:\n${err.stack}`);
-            server.close();
+            this.socket.close();
         });
 
         this.socket.on('message', (message, rinfo) => {
