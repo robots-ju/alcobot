@@ -32,12 +32,6 @@ function choix(boisson) {
             boissonCommandeTexte.textContent = 'Coca';
             imageSrc = 'soda.png';
             break;
-
-        case 'limonadeCitron':
-            boissonCommandeTexte.textContent = 'Limonade citron';
-            imageSrc = 'lemon-juice.png'
-            break;
-
     }
     document.getElementById('boissonCommandeImage').src = 'src/images/' + imageSrc;
 }
