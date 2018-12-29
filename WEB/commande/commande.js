@@ -85,15 +85,21 @@ function send() {
 socket.on('confirmation', function(numberCommande){
     $('#numeroCommande').text(numberCommande);
     $('#confirmation').modal();
+    reload();
 })
 
 function reload() {
-    typeDeBoisson = null;
-    buttonBoisson.classList.remove('btn-success');
-    eau.classList.remove('btn-success');
-    boissonCommandeTexte.textContent = null;
-    imageSrc = null;
-    $('#send1').prop('disabled', true);
+    setTimeout (
+        () => {
+            typeDeBoisson = null;
+            buttonBoisson.classList.remove('btn-success');
+            eau.classList.remove('btn-success');
+            boissonCommandeTexte.textContent = null;
+            imageSrc = null;
+            $('#send1').prop('disabled', true);
+            $('#confirmation').modal('toggle');
+        }, 3000
+    );
 }
 const buttons = document.querySelectorAll('[data-boisson]')
 const eau = document.getElementById('eau');
