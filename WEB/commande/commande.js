@@ -39,7 +39,7 @@ function choix(boisson) {
             break;
 
     }
-    document.getElementById('boissonCommandeImage').src = 'src/images_sans_python/' + imageSrc;
+    document.getElementById('boissonCommandeImage').src = 'src/images/' + imageSrc;
 }
 
 function convertBoissonToNumber(typeBoisson) {
