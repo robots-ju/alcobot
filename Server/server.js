@@ -43,7 +43,7 @@ let listeDesCommande = [];
 //robotique//
 
 let nextRobot = 1;
-let numberOfRobot = 2;
+let numberOfRobot = 1;
 
 // Les noms de brique se passent en arguments
 const allowedBrickNames = process.argv.slice(2);
