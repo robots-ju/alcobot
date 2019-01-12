@@ -42,6 +42,9 @@ let listeDesCommande = [];
 
 //robotique//
 
+let nextRobot = 1;
+let numberOfRobot = 2;
+
 // Les noms de brique se passent en arguments
 const allowedBrickNames = process.argv.slice(2);
 
@@ -94,7 +97,29 @@ function convertBoissonToNumber (boisson) {
 
 function sendCommande (boisson) {
   if(availableBricks.length > 0) {
-    availableBricks[0].sendMailboxMessage('command', convertBoissonToNumber(boisson));
+    let robotFind = findNextRobot(nextRobot);
+    if(robotFind) {
+      robotFind.sendMailboxMessage('command', convertBoissonToNumber(boisson));
+      if(nextRobot < numberOfRobot) {
+        nextRobot++;
+      }
+      else{
+        nextRobot = 1;
+      }
+    }
+    else {
+      console.log('Le robot qui devait recevoir la commande n\'est pas connecté');
+    }
+    
   }
   
 } 
+
+function findNextRobot (robotNumber) {
+  robotName = 'Alcobot' + robotNumber;
+  console.log(robotName);
+  return availableBricks.find(
+     (robot) => {
+        return robot.name === robotName;
+  });
+}
