@@ -21,8 +21,9 @@ io.on('connection', function (socket) {
   });
   socket.on('commandes', function (boisson) {
     console.log(boisson)
-    sendCommande(boisson);
     listeDesCommande.push(new Commande(boisson, boisson));
+    sendCommande(listeDesCommande[0]);
+    robotSendCommand();
     console.log(listeDesCommande);
     io.emit('listeCommandes', listeDesCommande);
     socket.emit('confirmation', lastNumberCommande);
@@ -55,10 +56,6 @@ const availableBricks = [];
 const manager = new Manager();
 manager.bind();
 
-function indexFromBrickName(name) {
-  return availableBricks.findIndex(brick => brick.name === name);
-}
-
 manager.on('foundBrick', brick => {
   if (allowedBrickNames.indexOf(brick.name) === -1) {
     console.info('Détecté la brique ' + brick.name + ' mais elle n\'est pas whitelistée. Pas connecté.');
@@ -79,47 +76,82 @@ manager.on('foundBrick', brick => {
       console.log('#' + (index + 1) + ' - Nom: ' + brick.name + ' - SN: ' + brick.serialNumber);
     });
   });
+  brick.on('fileContent', file => {
+    brick.ready = !!(file.payload.split('\r')[0]);
+});
 });
 
-function convertBoissonToNumber (boisson) {
+function convertBoissonToNumber(boisson) {
   switch (boisson) {
     case 'theFroid':
-    return 1;
+      return 1;
     case 'eauPlate':
-    return 2;
-    case 'eauGazeuse': 
-    return 3;
+      return 2;
+    case 'eauGazeuse':
+      return 3;
     case 'coca':
-    return 4;
+      return 4;
   }
-    
+
 }
 
-function sendCommande (boisson) {
-  if(availableBricks.length > 0) {
+function sendCommande(boisson) {
+  if (availableBricks.length > 0) {
     let robotFind = findNextRobot(nextRobot);
-    if(robotFind) {
+    if (robotFind) {
       robotFind.sendMailboxMessage('command', convertBoissonToNumber(boisson));
-      if(nextRobot < numberOfRobot) {
+      if (nextRobot < numberOfRobot) {
         nextRobot++;
       }
-      else{
+      else {
         nextRobot = 1;
       }
     }
     else {
       console.log('Le robot qui devait recevoir la commande n\'est pas connecté');
     }
-    
-  }
-  
-} 
 
-function findNextRobot (robotNumber) {
+  }
+
+}
+
+function findNextRobot(robotNumber) {
   robotName = 'Alcobot' + robotNumber;
   console.log(robotName);
   return availableBricks.find(
-     (robot) => {
-        return robot.name === robotName;
-  });
+    (robot) => {
+      return robot.name === robotName;
+    });
+}
+
+while (true) {
+  if (availableBricks <= 0) {
+    console.log('Pas de robot');
+    continue;
+  }
+  if (listeDesCommande <= 0) {
+    console.log('Robot connecté mais pas de commande');  
+    continue;
+  }
+  let command = listeDesCommande.find(
+    (com) => {
+      return com.etat === 'wait';
+    })
+  let robot = findNextRobot();
+  while (!robot.ready) {
+    let isReadyInterval = setInterval(
+      () => {
+        robot.readFile('../prjs/Alcobot/ready.rtf');
+      }, 5000);
+  }
+  clearInterval(isReadyInterval);
+  robot.sendMailboxMessage('command', convertBoissonToNumber(boisson));
+  command.etat = 'progress';
+  if (nextRobot < numberOfRobot) {
+    nextRobot++;
+  }
+  else {
+    nextRobot = 1;
+  }
+  
 }
