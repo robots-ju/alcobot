@@ -1,4 +1,4 @@
-# alcobot
+# **Alcobot**
 Robot serveur de boissons
 
 ## Installation pour le serveur
