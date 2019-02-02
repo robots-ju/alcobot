@@ -22,8 +22,8 @@ io.on('connection', function (socket) {
   socket.on('commandes', function (boisson) {
     console.log(boisson)
     listeDesCommande.push(new Commande(boisson, boisson));
-    sendCommande(listeDesCommande[0]);
-    robotSendCommand();
+    sendCommande(listeDesCommande[0].typeDeBoisson);
+    listeDesCommande[0].etat = 'wait';
     console.log(listeDesCommande);
     io.emit('listeCommandes', listeDesCommande);
     socket.emit('confirmation', lastNumberCommande);
@@ -124,9 +124,17 @@ function findNextRobot(robotNumber) {
     });
 }
 
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
+}
+/*
 while (true) {
   if (availableBricks <= 0) {
-    console.log('Pas de robot');
     continue;
   }
   if (listeDesCommande <= 0) {
@@ -154,4 +162,4 @@ while (true) {
     nextRobot = 1;
   }
   
-}
+}*/
