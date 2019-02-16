@@ -23,7 +23,7 @@ io.on('connection', function (socket) {
     console.log(boisson)
     listeDesCommande.push(new Commande(boisson, boisson));
     sendCommande(listeDesCommande[0].typeDeBoisson);
-    listeDesCommande[0].etat = 'wait';
+    listeDesCommande[0].etat = 'progress';
     console.log(listeDesCommande);
     io.emit('listeCommandes', listeDesCommande);
     socket.emit('confirmation', lastNumberCommande);
@@ -78,7 +78,7 @@ manager.on('foundBrick', brick => {
   });
   brick.on('fileContent', file => {
     brick.ready = !!(file.payload.split('\r')[0]);
-});
+  });
 });
 
 function convertBoissonToNumber(boisson) {
@@ -100,6 +100,7 @@ function sendCommande(boisson) {
     let robotFind = findNextRobot(nextRobot);
     if (robotFind) {
       robotFind.sendMailboxMessage('command', convertBoissonToNumber(boisson));
+      console.log(convertBoissonToNumber(boisson));
       if (nextRobot < numberOfRobot) {
         nextRobot++;
       }
@@ -124,21 +125,12 @@ function findNextRobot(robotNumber) {
     });
 }
 
-function sleep(milliseconds) {
-  var start = new Date().getTime();
-  for (var i = 0; i < 1e7; i++) {
-    if ((new Date().getTime() - start) > milliseconds){
-      break;
-    }
-  }
-}
-/*
 while (true) {
   if (availableBricks <= 0) {
     continue;
   }
   if (listeDesCommande <= 0) {
-    console.log('Robot connecté mais pas de commande');  
+    console.log('Robot connecté mais pas de commande');
     continue;
   }
   let command = listeDesCommande.find(
@@ -146,11 +138,12 @@ while (true) {
       return com.etat === 'wait';
     })
   let robot = findNextRobot();
+  let isReadyInterval = setInterval(
+    () => {
+      robot.readFile('../prjs/Alcobot/ready.rtf');
+    }, 5000);
   while (!robot.ready) {
-    let isReadyInterval = setInterval(
-      () => {
-        robot.readFile('../prjs/Alcobot/ready.rtf');
-      }, 5000);
+
   }
   clearInterval(isReadyInterval);
   robot.sendMailboxMessage('command', convertBoissonToNumber(boisson));
@@ -161,5 +154,7 @@ while (true) {
   else {
     nextRobot = 1;
   }
-  
-}*/
+
+
+
+}
