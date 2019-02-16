@@ -125,36 +125,31 @@ function findNextRobot(robotNumber) {
     });
 }
 
-while (true) {
-  if (availableBricks <= 0) {
-    continue;
-  }
-  if (listeDesCommande <= 0) {
+function traiterCommandes() {
+  console.log('Pas de robot connecté');
+  if (availableBricks > 0) {
     console.log('Robot connecté mais pas de commande');
-    continue;
-  }
-  let command = listeDesCommande.find(
-    (com) => {
-      return com.etat === 'wait';
-    })
-  let robot = findNextRobot();
-  let isReadyInterval = setInterval(
-    () => {
+    if (listeDesCommande > 0) {
+      let command = listeDesCommande.find(
+        (com) => {
+          return com.etat === 'wait';
+        })
+      let robot = findNextRobot();
       robot.readFile('../prjs/Alcobot/ready.rtf');
-    }, 5000);
-  while (!robot.ready) {
-
+      console.log('Je questionne le robot !!');
+      if(robot.ready) {
+        robot.sendMailboxMessage('command', convertBoissonToNumber(boisson));
+        command.etat = 'progress';
+        if (nextRobot < numberOfRobot) {
+          nextRobot++;
+        }
+        else {
+          nextRobot = 1;
+        }
+      }
+    }
   }
-  clearInterval(isReadyInterval);
-  robot.sendMailboxMessage('command', convertBoissonToNumber(boisson));
-  command.etat = 'progress';
-  if (nextRobot < numberOfRobot) {
-    nextRobot++;
-  }
-  else {
-    nextRobot = 1;
-  }
-
-
-
+  setTimeout(traiterCommandes, 1000);
 }
+
+traiterCommandes();
