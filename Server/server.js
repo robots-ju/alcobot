@@ -22,8 +22,6 @@ io.on('connection', function (socket) {
   socket.on('commandes', function (boisson) {
     console.log(boisson)
     listeDesCommande.push(new Commande(boisson, boisson));
-    sendCommande(listeDesCommande[0].typeDeBoisson);
-    listeDesCommande[0].etat = 'progress';
     console.log(listeDesCommande);
     io.emit('listeCommandes', listeDesCommande);
     socket.emit('confirmation', lastNumberCommande);
@@ -49,7 +47,7 @@ let numberOfRobot = 1;
 // Les noms de brique se passent en arguments
 const allowedBrickNames = process.argv.slice(2);
 
-//Tableau des briques connecté
+//Tableau des briques connectées
 const availableBricks = [];
 
 //Créations du manager
@@ -95,27 +93,6 @@ function convertBoissonToNumber(boisson) {
 
 }
 
-function sendCommande(boisson) {
-  if (availableBricks.length > 0) {
-    let robotFind = findNextRobot(nextRobot);
-    if (robotFind) {
-      robotFind.sendMailboxMessage('command', convertBoissonToNumber(boisson));
-      console.log(convertBoissonToNumber(boisson));
-      if (nextRobot < numberOfRobot) {
-        nextRobot++;
-      }
-      else {
-        nextRobot = 1;
-      }
-    }
-    else {
-      console.log('Le robot qui devait recevoir la commande n\'est pas connecté');
-    }
-
-  }
-
-}
-
 function findNextRobot(robotNumber) {
   robotName = 'Alcobot' + robotNumber;
   console.log(robotName);
@@ -127,18 +104,19 @@ function findNextRobot(robotNumber) {
 
 function traiterCommandes() {
   console.log('Pas de robot connecté');
-  if (availableBricks > 0) {
+  if (availableBricks.length > 0) {
     console.log('Robot connecté mais pas de commande');
-    if (listeDesCommande > 0) {
+    if (listeDesCommande.length > 0) {
       let command = listeDesCommande.find(
         (com) => {
           return com.etat === 'wait';
         })
-      let robot = findNextRobot();
+      let robot = findNextRobot(numberOfRobot);
       robot.readFile('../prjs/Alcobot/ready.rtf');
       console.log('Je questionne le robot !!');
       if(robot.ready) {
-        robot.sendMailboxMessage('command', convertBoissonToNumber(boisson));
+        robot.ready = false;
+        robot.sendMailboxMessage('command', convertBoissonToNumber(command));
         command.etat = 'progress';
         if (nextRobot < numberOfRobot) {
           nextRobot++;
