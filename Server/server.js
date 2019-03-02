@@ -103,24 +103,34 @@ function findNextRobot(robotNumber) {
 }
 
 function traiterCommandes() {
-  console.log('Pas de robot connecté');
   if (availableBricks.length > 0) {
-    console.log('Robot connecté mais pas de commande');
-    if (listeDesCommande.length > 0) {
-      let command = listeDesCommande.find(
-        (com) => {
-          return com.etat === 'wait';
-        })
+    let command = listeDesCommande.find(
+      (com) => {
+        console.log(com.etat);
+        return com.etat === 'wait';
+      })
+    if (command) {
       let robot = findNextRobot(numberOfRobot);
       robot.readFile('../prjs/Alcobot/ready.rtf');
-      console.log('Je questionne le robot !!');
-      if(robot.ready) {
+      console.log('Je questionne le robot !!' + robot.ready);
+      if (robot.ready) {
         robot.ready = false;
-        robot.sendMailboxMessage('command', convertBoissonToNumber(command));
+        robot.sendMailboxMessage('command', convertBoissonToNumber(command.typeDeBoisson));
         command.etat = 'progress';
+        setTimeout(() =>{
+          command.etat = 'ready';
+          setTimeout(() => {
+            let commandIndex = listeDesCommande.findIndex((com) => {
+                return com.number === command.number;
+              })
+              listeDesCommande.splice(commandIndex, 1);
+            }, 20000);
+        }, 72000);
+       
         if (nextRobot < numberOfRobot) {
           nextRobot++;
         }
+
         else {
           nextRobot = 1;
         }
