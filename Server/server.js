@@ -39,10 +39,14 @@ class Commande {
 let lastNumberCommande = 0;
 let listeDesCommande = [];
 
+function rafraichirListesCommandesInterface() {
+  io.emit('listeCommandes', listeDesCommande);
+}
+
 //robotique//
 
 let nextRobot = 1;
-let numberOfRobot = 1;
+let numberOfRobot = 2;
 
 // Les noms de brique se passent en arguments
 const allowedBrickNames = process.argv.slice(2);
@@ -76,6 +80,7 @@ manager.on('foundBrick', brick => {
   });
   brick.on('fileContent', file => {
     brick.ready = !!(file.payload.split('\r')[0]);
+    console.log('Contenu de brick', brick.name, brick.ready);
   });
 });
 
@@ -93,13 +98,19 @@ function convertBoissonToNumber(boisson) {
 
 }
 
-function findNextRobot(robotNumber) {
-  robotName = 'Alcobot' + robotNumber;
-  console.log(robotName);
+function findNextRobot() {
   return availableBricks.find(
     (robot) => {
-      return robot.name === robotName;
+      return robot.name === 'Alcobot' + nextRobot;
     });
+}
+
+function switcherRobot() {
+  nextRobot++;
+  if (nextRobot > numberOfRobot) {
+    nextRobot = 1; 
+  }
+  console.log('Robot qui reçoi la commande: ' + nextRobot);
 }
 
 function traiterCommandes() {
@@ -109,34 +120,34 @@ function traiterCommandes() {
         return com.etat === 'wait';
       })
     if (command) {
-      let robot = findNextRobot(numberOfRobot);
-      robot.readFile('../prjs/Alcobot/ready.rtf');
-      console.log('Je questionne le robot !!' + robot.ready);
+      let robot = findNextRobot();
+
       if (robot.ready) {
         robot.ready = false;
+        switcherRobot();
         robot.sendMailboxMessage('command', convertBoissonToNumber(command.typeDeBoisson));
         command.etat = 'progress';
-        setTimeout(() =>{
+        console.log('La commande passe en ' + command.etat);
+        io.emit('listeCommandes', listeDesCommande);
+        setTimeout(() => {
           command.etat = 'ready';
+          io.emit('listeCommandes', listeDesCommande);
+          console.log(listeDesCommande);
           setTimeout(() => {
             let commandIndex = listeDesCommande.findIndex((com) => {
-                return com.number === command.number;
-              })
-              listeDesCommande.splice(commandIndex, 1);
-            }, 20000);
+              return com.number === command.number;
+            });
+            listeDesCommande.splice(commandIndex, 1);
+            io.emit('listeCommandes', listeDesCommande);
+          }, 20000);
         }, 72000);
-       
-        if (nextRobot < numberOfRobot) {
-          nextRobot++;
-        }
-
-        else {
-          nextRobot = 1;
-        }
+      } else {
+        robot.readFile('../prjs/Alcobot/ready.rtf');
+        console.log('Je questionne le robot !!' + robot.ready);
       }
     }
   }
-  setTimeout(traiterCommandes, 1000);
+  setTimeout(traiterCommandes, 10000);
 }
 
 traiterCommandes();
