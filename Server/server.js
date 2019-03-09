@@ -106,7 +106,6 @@ function traiterCommandes() {
   if (availableBricks.length > 0) {
     let command = listeDesCommande.find(
       (com) => {
-        console.log(com.etat);
         return com.etat === 'wait';
       })
     if (command) {
