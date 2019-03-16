@@ -121,8 +121,4 @@ buttons.forEach(button => {
 
 document.getElementById('send').addEventListener('click', () => {
     send();
-})
-
-document.getElementById('newCommand').addEventListener('click', () => {
-    reload();
-})
+});

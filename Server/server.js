@@ -61,7 +61,6 @@ manager.bind();
 manager.on('foundBrick', brick => {
   if (allowedBrickNames.indexOf(brick.name) === -1) {
     console.info('Détecté la brique ' + brick.name + ' mais elle n\'est pas whitelistée. Pas connecté.');
-
     return;
   }
 
@@ -108,9 +107,8 @@ function findNextRobot() {
 function switcherRobot() {
   nextRobot++;
   if (nextRobot > numberOfRobot) {
-    nextRobot = 1; 
+    nextRobot = 1;
   }
-  console.log('Robot qui reçoi la commande: ' + nextRobot);
 }
 
 function traiterCommandes() {
@@ -119,8 +117,14 @@ function traiterCommandes() {
       (com) => {
         return com.etat === 'wait';
       })
-    if (command) {
+    let commandeEnCours = listeDesCommande.some(
+      (com) => {
+        return com.etat === 'progress';
+      }
+    )
+    if (command && !commandeEnCours) {
       let robot = findNextRobot();
+      console.log('Robot qui reçoi la commande: ' + nextRobot);
 
       if (robot.ready) {
         robot.ready = false;
@@ -128,17 +132,17 @@ function traiterCommandes() {
         robot.sendMailboxMessage('command', convertBoissonToNumber(command.typeDeBoisson));
         command.etat = 'progress';
         console.log('La commande passe en ' + command.etat);
-        io.emit('listeCommandes', listeDesCommande);
+        rafraichirListesCommandesInterface();
         setTimeout(() => {
           command.etat = 'ready';
-          io.emit('listeCommandes', listeDesCommande);
+          rafraichirListesCommandesInterface();
           console.log(listeDesCommande);
           setTimeout(() => {
             let commandIndex = listeDesCommande.findIndex((com) => {
               return com.number === command.number;
             });
             listeDesCommande.splice(commandIndex, 1);
-            io.emit('listeCommandes', listeDesCommande);
+            rafraichirListesCommandesInterface();
           }, 20000);
         }, 72000);
       } else {
@@ -147,7 +151,7 @@ function traiterCommandes() {
       }
     }
   }
-  setTimeout(traiterCommandes, 10000);
+  setTimeout(traiterCommandes, 2000);
 }
 
 traiterCommandes();
