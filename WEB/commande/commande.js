@@ -14,8 +14,8 @@ function choix(boisson) {
 
     switch (typeDeBoisson) {
         case 'theFroid':
-            boissonCommandeTexte.textContent = 'Thé Froid';
-            imageSrc = 'iced-tea.png';
+            boissonCommandeTexte.textContent = 'Limonade';
+            imageSrc = 'orange-juice.png';
             break;
 
         case 'eauPlate':
