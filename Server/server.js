@@ -1,5 +1,5 @@
 const http = require('http');
-const hostname = '192.168.40.254';
+const hostname = '192.168.40.250';
 const port = 3000;
 const Manager = require('./ev3/BrickManager');
 
@@ -25,7 +25,7 @@ io.on('connection', function (socket) {
     console.log(listeDesCommande);
     io.emit('listeCommandes', listeDesCommande);
     socket.emit('confirmation', lastNumberCommande);
-
+ 
   })
 });
 
