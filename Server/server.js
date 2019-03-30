@@ -1,5 +1,5 @@
+const hostname = '192.168.43.173';
 const http = require('http');
-const hostname = '192.168.40.250';
 const port = 3000;
 const Manager = require('./ev3/BrickManager');
 
